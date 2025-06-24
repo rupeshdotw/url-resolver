@@ -55,7 +55,9 @@ const regionZoneMap = {
   FR: process.env.BRIGHTDATA_FR_PROXY,
   JP: process.env.BRIGHTDATA_JP_PROXY,
   SG: process.env.BRIGHTDATA_SG_PROXY,
-  BR: process.env.BRIGHTDATA_BR_PROXY
+  BR: process.env.BRIGHTDATA_BR_PROXY,
+  TW: process.env.BRIGHTDATA_TW_PROXY,
+  CZ: process.env.BRIGHTDATA_CZ_PROXY,
 };
 
 //Make sure all proxy values exist at runtime or fail fast on startup.
