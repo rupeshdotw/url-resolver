@@ -1,5 +1,5 @@
 import express from "express";
-import puppeteer, { executablePath } from "puppeteer-core";
+import puppeteer from "puppeteer-core";
 import { config as dotenv } from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -74,12 +74,6 @@ function getBrowserWss(regionCode) {
 
   return `wss://${zone}:${password}@brd.superproxy.io:9222`;
 }
-
-await puppeteer.launch({
-  headless: true,
-  args: ['--no-sandbox', '--disable-setuid-sandbox'],
-  executablePath: process.NODE_ENV === 'production' ? process.env.CHROME_EXECUTABLE_PATH : puppeteer.executablePath(),
-});
 
 // Main Puppeteer logic
 async function resolveWithBrowserAPI(inputUrl, region = "US") {
