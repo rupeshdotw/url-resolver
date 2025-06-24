@@ -4,7 +4,7 @@ import { config as dotenv } from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 import cors from "cors";
-import helmet from "helmet";
+import helmet, { referrerPolicy } from "helmet";
 import rateLimit from "express-rate-limit";
 import os from 'os';
 
@@ -20,7 +20,12 @@ const PORT = process.env.PORT || 8080;
 app.use(express.static(path.join(__dirname, "public")));
 
 // Enhanced middleware stack
-app.use(helmet()); // Security headers
+app.use(helmet({
+  contentSecurityPolicy: false, // Enable and customize as needed
+  referrerPolicy : {
+    policy: "no-referrer",
+  },
+})); // Security headers
 
 // CORS (optional if frontend is same origin)
 app.use(cors({
