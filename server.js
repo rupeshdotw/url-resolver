@@ -182,8 +182,6 @@ app.get("/regions", (req, res) => {
   res.json(Object.keys(regionZoneMap));
 });
 
-const os = require("os");
-
 app.get("/health-check", (req, res) => {
   const memoryUsage = process.memoryUsage();
   const uptime = process.uptime();
