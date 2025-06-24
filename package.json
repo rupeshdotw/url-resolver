@@ -9,5 +9,9 @@
     "path": "^0.12.7",
     "puppeteer-core": "^24.10.2",
     "url": "^0.11.4"
-  }
+  },
+  "scripts": {
+  "start": "node server.js"
+  },
+  "type": "module"
 }
