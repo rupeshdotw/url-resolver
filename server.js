@@ -130,7 +130,6 @@ async function resolveWithBrowserAPI(inputUrl, region = "US") {
     const finalUrl = page.url();
 
     // Detect IP info from inside the browser
-    await page.waitForTimeout(1000);
     const ipData = await page.evaluate(async () => {
       try {
         const res = await fetch("https://ipapi.co/json/");
