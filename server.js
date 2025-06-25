@@ -141,7 +141,6 @@ async function resolveWithBrowserAPI(inputUrl, region = "US") {
     return { finalUrl, ipData };
   } finally {
     //await browser.close();
-    await page.close();
     await browser.disconnect();
   }
 }
