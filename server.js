@@ -112,6 +112,7 @@ async function resolveWithBrowserAPI(inputUrl, region = "US") {
     // Slow or complex sites
     page.setDefaultNavigationTimeout(60000); // 60 seconds
 
+    const timeout = process.env.NAVIGATION_TIMEOUT || 30000;
     await page.goto(inputUrl, {
       waitUntil: "networkidle2",
       timeout
