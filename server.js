@@ -19,36 +19,30 @@ const PORT = process.env.PORT || 8080;
 // Serve static frontend
 app.use(express.static(path.join(__dirname, "public")));
 
-// Trust reverse proxy (important for real client IPs)
-app.set('trust proxy', false);
-
-// Security headers
+// Enhanced middleware stack
 app.use(helmet({
-  contentSecurityPolicy: false, // customize for production
-  referrerPolicy: { policy: "no-referrer" },
-}));
-
-// CORS configuration
-const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
-
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
+  contentSecurityPolicy: false, // Enable and customize as needed
+  referrerPolicy : {
+    policy: "no-referrer",
   },
-  credentials: true,
+})); // Security headers
+
+// CORS (optional if frontend is same origin)
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',')
+  : '*';
+console.log('[CORS] Allowed origins:', allowedOrigins);
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
 }));
 
-// Body parser
-app.use(express.json({ limit: '20mb' || '10mb' }));
+app.use(express.json({ limit: '20mb' }));
 
-// Rate limiting (applies only to /resolve)
+// Rate limiting
 const limiter = rateLimit({
-  windowMs: 5 * 60 * 1000,
-  max: Number(process.env.RATE_LIMIT) || 100,
+  windowMs: 5 * 60 * 1000, // 5 minutes
+  max: process.env.RATE_LIMIT || 100, // limit each IP to 100 requests per windowMs
   message: { error: 'Too many requests, please try again later' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -114,17 +108,15 @@ async function resolveWithBrowserAPI(inputUrl, region = "US") {
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
     );
 
-    // Normal usage
-    page.setDefaultNavigationTimeout(30000); // 30 seconds (default)
+    page.setDefaultNavigationTimeout(60000);
 
-    const timeout = process.env.NAVIGATION_TIMEOUT || 60000;
     await page.goto(inputUrl, {
       waitUntil: "networkidle2",
-      timeout
+      timeout: 60000
     });
 
     // Optional wait
-    //await page.waitForSelector("body", {timeout:10000});
+    await page.waitForSelector("body", {timeout:10000});
 
     // Get resolved final URL
     const finalUrl = page.url();
