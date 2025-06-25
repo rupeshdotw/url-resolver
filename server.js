@@ -103,11 +103,18 @@ async function resolveWithBrowserAPI(inputUrl, region = "US") {
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
     );
 
-    page.setDefaultNavigationTimeout(60000);
+    // Fast/static sites
+    page.setDefaultNavigationTimeout(15000); // 15 seconds
+
+    // Normal usage
+    page.setDefaultNavigationTimeout(30000); // 30 seconds (default)
+
+    // Slow or complex sites
+    page.setDefaultNavigationTimeout(60000); // 60 seconds
 
     await page.goto(inputUrl, {
       waitUntil: "networkidle2",
-      timeout: 60000
+      timeout
     });
 
     // Optional wait
