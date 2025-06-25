@@ -110,10 +110,9 @@ async function resolveWithBrowserAPI(inputUrl, region = "US") {
 
     page.setDefaultNavigationTimeout(30000);
 
-    await page.goto(inputUrl, {
-      waitUntil: "networkidle2",
-      timeout: 30000
-    });
+    const timeout = process.env.NAVIGATION_TIMEOUT || 60000;
+    console.log(`[INFO] Using navigation timeout: ${timeout} ms`);
+    await page.goto(inputUrl, {waitUntil: "domcontentloaded", timeout: timeout });
 
     // Optional wait
     await page.waitForSelector("body", {timeout:10000});
@@ -156,11 +155,10 @@ app.get("/resolve", async (req, res) => {
   try {
     const { finalUrl, ipData } = await resolveWithBrowserAPI(inputUrl, region);
 
-    console.log(`✅ Resolved [${region}]`);
     console.log(`→ Original URL: ${inputUrl}`);
     console.log(`→ Final URL   : ${finalUrl}`);
+    console.log(`→ URLs Resolved with [${region}] Check IP Data ⤵`);
     if (ipData?.ip) {
-        //console.log(`🌍 IP Info : ${ipData.ip} (${ipData.country_name || "Unknown"})`);
         console.log(`🌍 IP Info : ${ipData.ip} (${ipData.country_name || "Unknown"} - ${ipData.country_code || "N/A"})`);
         console.log(`🔍 Region Match: ${ipData.country_code?.toUpperCase() === region.toUpperCase() ? '✅ YES' : '❌ NO'}`);
     }
@@ -182,7 +180,7 @@ app.get("/resolve", async (req, res) => {
     });
   } catch (err) {
     console.error("❌ Resolution failed:", err.stack, err.message);
-    return res.status(500).json({ error: "Resolution failed", details: err.message });
+    return res.status(500).json({ error: "❌ Resolution failed", details: err.message });
   }
 });
 
