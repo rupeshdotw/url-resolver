@@ -117,9 +117,9 @@ async function resolveWithBrowserAPI(inputUrl, region = "US") {
     // Normal usage
     page.setDefaultNavigationTimeout(30000); // 30 seconds (default)
 
-    const timeout = process.env.NAVIGATION_TIMEOUT || 30000;
+    const timeout = process.env.NAVIGATION_TIMEOUT || 60000;
     await page.goto(inputUrl, {
-      waitUntil: "domcontentloaded",
+      waitUntil: "networkidle2",
       timeout
     });
 
@@ -130,6 +130,7 @@ async function resolveWithBrowserAPI(inputUrl, region = "US") {
     const finalUrl = page.url();
 
     // Detect IP info from inside the browser
+    await page.waitForTimeout(1000);
     const ipData = await page.evaluate(async () => {
       try {
         const res = await fetch("https://ipapi.co/json/");
