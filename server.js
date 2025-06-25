@@ -19,25 +19,36 @@ const PORT = process.env.PORT || 8080;
 // Serve static frontend
 app.use(express.static(path.join(__dirname, "public")));
 
-// Enhanced middleware stack
+// Trust reverse proxy (important for real client IPs)
+app.set('trust proxy', true);
+
+// Security headers
 app.use(helmet({
-  contentSecurityPolicy: false, // Enable and customize as needed
-  referrerPolicy : {
-    policy: "no-referrer",
-  },
-})); // Security headers
-
-// CORS (optional if frontend is same origin)
-app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
-  credentials: true
+  contentSecurityPolicy: false, // customize for production
+  referrerPolicy: { policy: "no-referrer" },
 }));
-app.use(express.json({ limit: '10mb' }));
 
-// Rate limiting
+// CORS configuration
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+}));
+
+// Body parser
+app.use(express.json({ limit: '20mb' || '10mb' }));
+
+// Rate limiting (applies only to /resolve)
 const limiter = rateLimit({
-  windowMs: 5 * 60 * 1000, // 5 minutes
-  max: process.env.RATE_LIMIT || 100, // limit each IP to 100 requests per windowMs
+  windowMs: 5 * 60 * 1000,
+  max: Number(process.env.RATE_LIMIT) || 100,
   message: { error: 'Too many requests, please try again later' },
   standardHeaders: true,
   legacyHeaders: false,
