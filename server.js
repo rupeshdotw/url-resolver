@@ -115,9 +115,7 @@ async function resolveWithBrowserAPI(inputUrl, region = "US") {
     await page.goto(inputUrl, {waitUntil: "domcontentloaded", timeout: timeout });
 
     // Optional wait
-    const newTimeout = process.env.PAGE_WAIT_SELECTOR || 30000;
-    console.log(`[INFO] Wait For Selector Timout: ${newTimeout} ms`)
-    await page.waitForSelector("body", {timeout: newTimeout});
+    await page.waitForSelector("body", {timeout: 30000});
 
     // Get resolved final URL
     const finalUrl = page.url();
@@ -152,12 +150,12 @@ app.get("/resolve", async (req, res) => {
     return res.status(400).json({ error: "Invalid URL format" });
   }
 
+  console.log("⌛ Requesting new URL");
   console.log(`🌐 Resolving URL for region [${region}]:`, inputUrl);
 
   try {
     const { finalUrl, ipData } = await resolveWithBrowserAPI(inputUrl, region);
 
-    console.log("⌛ Requesting new URL")
     console.log(`→ Original URL: ${inputUrl}`);
     console.log(`→ Final URL   : ${finalUrl}`);
     console.log(`→ URLs Resolved with [${region}] Check IP Data ⤵`);
@@ -165,6 +163,7 @@ app.get("/resolve", async (req, res) => {
         console.log(`🌍 IP Info : ${ipData.ip} (${ipData.country_name || "Unknown"} - ${ipData.country_code || "N/A"})`);
         console.log(`🔍 Region Match: ${ipData.country_code?.toUpperCase() === region.toUpperCase() ? '✅ YES' : '❌ NO'}`);
     }
+    console.log(`URL Resolution Completed For: ${inputUrl}`)
 
     return res.json({
       originalUrl: inputUrl,
@@ -174,12 +173,13 @@ app.get("/resolve", async (req, res) => {
       actualRegion: ipData?.country_code?.toUpperCase() || 'Unknown',
       regionMatch: ipData?.country_code?.toUpperCase() === region.toUpperCase(),
       method: "browser-api",
-      hasClickId: finalUrl.includes("clickid="),
+      hasClickId: finalUrl.includes("clickid=" || finalUrl.includes("clickId=")),
       hasClickRef: finalUrl.includes("clickref="),
       hasUtmSource: finalUrl.includes("utm_source="),
       hasImRef: finalUrl.includes("im_ref="),
       hasMtkSource: finalUrl.includes("mkt_source="),
       hasTduId: finalUrl.includes("tduid="),
+      hasPublisherId: finalUrl.includes("publisherId="),
       ipData // Region detection info
     });
   } catch (err) {
