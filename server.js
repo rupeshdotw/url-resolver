@@ -179,7 +179,7 @@ app.get("/resolve", async (req, res) => {
       hasUtmSource: finalUrl.includes("utm_source="),
       hasImRef: finalUrl.includes("im_ref="),
       hasMtkSource: finalUrl.includes("mkt_source="),
-      hasTduId: finalUrl.url.includes("tduid"),
+      hasTduId: finalUrl.includes("tduid="),
       ipData // Region detection info
     });
   } catch (err) {
