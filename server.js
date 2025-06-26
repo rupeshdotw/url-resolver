@@ -116,6 +116,7 @@ async function resolveWithBrowserAPI(inputUrl, region = "US") {
 
     // Optional wait
     const newTimeout = process.env.PAGE_WAIT_SELECTOR || 30000;
+    console.log(`[INFO] Wait For Selector Timout: ${newTimeout} ms`)
     await page.waitForSelector("body", {timeout: newTimeout});
 
     // Get resolved final URL
