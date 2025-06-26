@@ -115,7 +115,8 @@ async function resolveWithBrowserAPI(inputUrl, region = "US") {
     await page.goto(inputUrl, {waitUntil: "domcontentloaded", timeout: timeout });
 
     // Optional wait
-    await page.waitForSelector("body", {timeout:10000});
+    const newTimeout = process.env.PAGE_WAIT_SELECTOR || 30000;
+    await page.waitForSelector("body", {timeout: newTimeout});
 
     // Get resolved final URL
     const finalUrl = page.url();
@@ -155,6 +156,7 @@ app.get("/resolve", async (req, res) => {
   try {
     const { finalUrl, ipData } = await resolveWithBrowserAPI(inputUrl, region);
 
+    console.log("⌛ Requesting new URL")
     console.log(`→ Original URL: ${inputUrl}`);
     console.log(`→ Final URL   : ${finalUrl}`);
     console.log(`→ URLs Resolved with [${region}] Check IP Data ⤵`);
@@ -176,6 +178,7 @@ app.get("/resolve", async (req, res) => {
       hasUtmSource: finalUrl.includes("utm_source="),
       hasImRef: finalUrl.includes("im_ref="),
       hasMtkSource: finalUrl.includes("mkt_source="),
+      hasTduId: finalUrl.url.includes("tduid"),
       ipData // Region detection info
     });
   } catch (err) {
